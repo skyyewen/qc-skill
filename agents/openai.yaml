@@ -1,0 +1,4 @@
+interface:
+  display_name: "QC"
+  short_description: "Review workspace code against a task prompt with auto-fetch."
+  default_prompt: "Use $qc to review the current workspace against the latest task prompt, auto-fetching it from chat history if omitted."
