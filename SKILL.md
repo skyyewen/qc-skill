@@ -1,6 +1,6 @@
 ---
 name: qc
-description: "Manual quality control for Coding Agent annotation rounds. Use when the user invokes @qc or $qc with or without the round prompt. Evaluate whether the latest workspace changes or pasted Trae output satisfy the round prompt, classify task type/domain/scope, decide satisfied vs unsatisfied vs insufficient information, and draft at most one next-round prompt."
+description: "Manual quality control for Coding Agent annotation rounds. Use when the user invokes @qc or $qc with or without the round prompt. Evaluate whether the latest workspace changes or pasted Trae output satisfy the round prompt, classify task type/domain/scope, decide satisfied vs unsatisfied vs insufficient information, and either draft at most one next-round prompt or recommend skipping the题 when the only remaining issue is a clear single-file bug."
 ---
 
 # QC
@@ -76,7 +76,7 @@ If the user pasted a Trae answer or analysis text, evaluate that output itself i
    - stage the current round's relevant changes, or all non-ignored changes if boundaries are unclear
    - create a commit when there is something to commit, using the task-type tag in the message
 7. Judge strictly against the round prompt, not against unrelated polish opportunities.
-8. If unsatisfied, converge on exactly one main problem.
+8. If unsatisfied, converge on exactly one main problem. If that problem is clearly a single-file bug, do not draft a continuation prompt. Recommend skipping the题 and starting a new one instead.
 9. If evidence is insufficient, mark `信息不足` and request only the minimum missing verification data.
 10. Append the completed QC record to `../qc.md` relative to the current working directory used for QC. If the file does not exist, create it. If it exists, append a new entry and never overwrite prior records.
 11. Write and append `../qc.md` using UTF-8 encoding, not the platform default code page. After appending, read back the new entry and verify that Chinese text was preserved and not replaced by `?` or mojibake.
@@ -104,6 +104,7 @@ Before emitting the QC result, make a git snapshot unless there are literally no
 - When writing `../qc.md`, use an explicit UTF-8 file write path. Do not rely on shell redirection or a terminal code page that may turn Chinese into `?`.
 - You may execute non-destructive acceptance commands such as build, test, lint, temporary local startup, read-only requests, and log inspection when they are needed to judge the round.
 - Do not invent extra issues just to continue the round.
+- If the only remaining issue is a clear single-file bug, do not spend another round on it. Recommend skipping the题 instead.
 - Do not turn “I did not see verification evidence” into “the feature is definitely broken”.
 - Prefer hard problems such as build failure, run failure, clear requirement miss, regression, or key scenario omission.
 - Treat style, wording, and visual polish as secondary unless the round prompt explicitly targets them.
@@ -111,3 +112,4 @@ Before emitting the QC result, make a git snapshot unless there are literally no
 - For code testing rounds, focus on whether required scenarios are covered and whether real data/dependencies are isolated.
 - For engineering rounds, focus on whether the result is actually runnable, buildable, or reproducible.
 - For refactor rounds, focus on regressions, broken interactions, or blurred responsibility boundaries.
+- When classifying modification scope, do not default code understanding, code testing, or engineering rounds to `单文件` when the actual analysis, coverage, or verification scope clearly spans multiple files.
